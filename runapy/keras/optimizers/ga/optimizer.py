@@ -28,7 +28,16 @@ class Optimizer(keras.optimizers.Optimizer):
             hooks.update    (condition=last, name_scope=name_scope),    \
             hooks.update_add(condition=last, name_scope=name_scope),    \
             hooks.update_sub(condition=last, name_scope=name_scope):
-            self.updates.extend(self.optimizer.get_updates(loss, params))
+            for update in self.optimizer.get_updates(loss, params):
+                # get_updates() may return assignment ops or tuples (variable, gradient) representing the desired assignments
+                # in the latter case we want to build the assignment op ourselves under the same hooks
+                #
+                # reference: https://github.com/tensorflow/tensorflow/blob/v1.14.0/tensorflow/python/keras/backend.py#L3145
+                if isinstance(update, tuple):
+                    with K.name_scope(name_scope):
+                        update = K.update(update[0], update[1])
+
+                self.updates.append(update)
 
         assert K.backend() == 'tensorflow', "Unsupported backend (" + K.backend() + ")"
 
