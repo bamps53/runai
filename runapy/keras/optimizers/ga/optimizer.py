@@ -5,7 +5,7 @@ from . import hooks
 
 class Optimizer(keras.optimizers.Optimizer):
     def __init__(self, optimizer, steps, **kwargs):
-        super(Optimizer, self).__init__(**kwargs)
+        super(Optimizer, self).__init__()
         self.optimizer = optimizer
         self.steps     = steps
 
@@ -36,6 +36,9 @@ class Optimizer(keras.optimizers.Optimizer):
             self.updates.append(K.update_add(iterations, 1))
         
         return self.updates
+
+    def get_gradients(self, loss, params):
+        return self.optimizer.get_gradients(loss, params)
 
     def set_weights(self, weights):
         self.optimizer.set_weights(weights)
