@@ -32,7 +32,7 @@ class Optimizer(keras.optimizers.Optimizer):
 
         assert K.backend() == 'tensorflow', "Unsupported backend (" + K.backend() + ")"
 
-        with K.name_scope(name_scope), K.tf.control_dependencies(self.updates):
+        with K.name_scope(name_scope), K.get_session().graph.control_dependencies(self.updates):
             self.updates.append(K.update_add(iterations, 1))
         
         return self.updates
