@@ -1,6 +1,6 @@
 import keras.optimizers
 
-from optimizer import Optimizer
+from .optimizer import Optimizer
 
 class RMSprop(Optimizer):
     def __init__(self, steps, **kwargs):

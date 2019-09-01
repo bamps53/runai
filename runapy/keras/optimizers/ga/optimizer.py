@@ -1,7 +1,7 @@
 import keras.optimizers
 import keras.backend as K
 
-import hooks
+from . import hooks
 
 class Optimizer(keras.optimizers.Optimizer):
     def __init__(self, optimizer, steps, **kwargs):
