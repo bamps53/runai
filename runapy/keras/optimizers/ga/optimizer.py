@@ -17,12 +17,11 @@ class Optimizer(keras.optimizers.Optimizer):
             first      = K.equal(iterations % self.steps, 0)
             last       = K.equal(iterations % self.steps, self.steps - 1)
 
-            agrads = [K.zeros(K.int_shape(param), dtype=K.dtype(param)) for param in params]
-
-            for grad, agrad in zip(grads, agrads):
-                self.updates.append(
-                    K.update(agrad, K.switch(first, grad, agrad + grad))
-                )
+            # variables to hold the accumulated gradients between steps
+            vagrads = [K.zeros(K.int_shape(param), dtype=K.dtype(param)) for param in params]
+            
+            # reset the accumulated gradient every first iteration
+            agrads = [K.switch(first, grad, grad + vagrad) for grad, vagrad in zip(grads, vagrads)]
 
         with hooks.get_gradients(self.optimizer, agrads),               \
             hooks.update    (condition=last, name_scope=name_scope),    \
@@ -41,8 +40,11 @@ class Optimizer(keras.optimizers.Optimizer):
 
         assert K.backend() == 'tensorflow', "Unsupported backend (" + K.backend() + ")"
 
-        with K.name_scope(name_scope), K.get_session().graph.control_dependencies(self.updates):
-            self.updates.append(K.update_add(iterations, 1))
+        with K.name_scope(name_scope):
+            self.updates.extend([K.update(vagrad, agrad) for vagrad, agrad in zip(vagrads, agrads)])
+
+            with K.get_session().graph.control_dependencies(self.updates):
+                self.updates.append(K.update_add(iterations, 1))
         
         return self.updates
 
