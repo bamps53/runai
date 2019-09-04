@@ -1,0 +1,19 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python
+
+    working_directory: ~/runapy
+
+    steps:
+      - checkout
+
+      - run:
+            name: Install dependencies
+            command: |
+                sudo pip install tensorflow==1.14 keras==2.2.4 
+
+      - run:
+            name: Test
+            command: PYTHONPATH=$PYTHONPATH:~/runapy python tests/ga.py
