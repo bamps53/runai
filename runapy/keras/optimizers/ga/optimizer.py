@@ -23,7 +23,7 @@ class Optimizer(keras.optimizers.Optimizer):
             # reset the accumulated gradient every first iteration
             agrads = [K.switch(first, grad, grad + vagrad) for grad, vagrad in zip(grads, vagrads)]
 
-        with hooks.get_gradients(self.optimizer, agrads),               \
+        with hooks.get_gradients(self.optimizer, [agrad / self.steps for agrad in agrads]), \
             hooks.update    (condition=last, name_scope=name_scope),    \
             hooks.update_add(condition=last, name_scope=name_scope),    \
             hooks.update_sub(condition=last, name_scope=name_scope):
