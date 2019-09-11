@@ -41,11 +41,11 @@ class Optimizer(unittest.TestCase):
         
         them = self._run(
             params,
-            [[np.array([gradients[step][i] for step in range(steps)]).sum(axis=0) for i in range(count)]], # running a single step with the reduced (sum) gradients
+            [[np.array([gradients[step][i] for step in range(steps)]).sum(axis=0) / steps for i in range(count)]], # running a single step with the reduced (sum) gradients
             getattr(keras.optimizers, optimizer)()
         )
 
-        self.assertTrue(np.array_equal(us, them))
+        self.assertTrue(np.allclose(us, them))
     
     def testAdadelta(self):
         self._test('Adadelta')
