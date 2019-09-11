@@ -58,4 +58,15 @@ class Optimizer(keras.optimizers.Optimizer):
         return self.optimizer.get_weights()
     
     def get_config(self):
-        return self.optimizer.get_config()
+        # we have to support creating our optimizers from configurations in order to support being run with Horovod
+        # Horovod dynamically creates a class that inherits the optimizer class it's wrapping (our optimizers), and
+        # passes the dictionary returned from this very method as the kwargs for the initialization in __init__()
+        # 
+        # our optimizers inherit from this very class, receive 'steps' as an argument, and do not receive 'optimizer'
+        # as they create the one they mimic
+        #
+        # therefore, we do not save self.optimizer in the returned dictionary
+        
+        config = self.optimizer.get_config()
+        config['steps'] = self.steps
+        return config
