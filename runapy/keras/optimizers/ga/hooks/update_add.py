@@ -1,4 +1,4 @@
-from .hook import Hook
+from runapy.utils import Hook
 
 import keras.backend as K
 

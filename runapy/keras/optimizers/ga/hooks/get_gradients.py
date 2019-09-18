@@ -1,4 +1,4 @@
-from .hook import Hook
+from runapy.utils import Hook
 
 class get_gradients(Hook):
     def __init__(self, optimizer, gradients):
