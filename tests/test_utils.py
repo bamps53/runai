@@ -31,11 +31,9 @@ class TestHook(unittest.TestCase):
         assert foo() == 42
 
         hook.enable()
-        self.assertRaises(AssertionError, hook.enable)
         assert foo() == 217
 
         hook.disable()
-        self.assertRaises(AssertionError, hook.disable)
         assert foo() == 42
 
     def test_object(self):
@@ -54,11 +52,9 @@ class TestHook(unittest.TestCase):
         assert o.foo() == 42
         
         hook.enable()
-        self.assertRaises(AssertionError, hook.enable)
         assert o.foo() == 217
         
         hook.disable()
-        self.assertRaises(AssertionError, hook.disable)
         assert o.foo() == 42
 
 if __name__ == '__main__':

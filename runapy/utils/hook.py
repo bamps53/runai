@@ -4,15 +4,11 @@ class Hook(object):
         self.method   = method
         self.original = getattr(module, method)
 
-    def replace(self, method):
-        assert getattr(self.module, self.method) != method
-        setattr(self.module, self.method, method)
-
     def enable(self):
-        self.replace(self.impl)
+        setattr(self.module, self.method, lambda *args, **kwargs: self.impl(*args, **kwargs))
 
     def disable(self):
-        self.replace(self.original)
+        setattr(self.module, self.method, self.original)
 
     def __enter__(self):
         self.enable()
