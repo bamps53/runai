@@ -6,9 +6,8 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout
 
 import keras.optimizers
-from runapy.keras.optimizers.ga import Adadelta, Adagrad, Adam, Adamax, Nadam, RMSprop, SGD
+import runapy.keras.optimizers.ga
 
-batch_size = 4
 num_classes = 10
 epochs = 1
 
@@ -37,20 +36,20 @@ model.add(Dense(num_classes, activation='softmax'))
 
 model.summary()
 
-# optimizer = Adadelta(steps=5)
-# optimizer = Adagrad(steps=5)
-optimizer = Adam(steps=5)
-# optimizer = Adamax(steps=5)
-# optimizer = Nadam(steps=5)
-# optimizer = RMSprop(steps=5)
-# optimizer = SGD(steps=5)
+# original
+# batch_size = 10
+# optimizer = keras.optimizers.Adam()
+
+# Run:AI
+batch_size = 2
+optimizer = runapy.keras.optimizers.ga.Adam(steps=5)
 
 model.compile(loss='categorical_crossentropy',
               optimizer=optimizer,
               metrics=['accuracy'])
 
 history = model.fit(x_train, y_train,
-                    batch_size=1,
+                    batch_size=batch_size,
                     epochs=epochs,
                     verbose=1,
                     validation_data=(x_test, y_test))
