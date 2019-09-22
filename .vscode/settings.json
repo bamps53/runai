@@ -1,5 +1,6 @@
 {
     "files.exclude": {
-        "**/*.pyc": true
+        "**/*.pyc": true,
+        "**/__pycache__": true,
     }
 }
