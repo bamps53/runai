@@ -5,3 +5,4 @@ from .Adamax    import Adamax
 from .Nadam     import Nadam
 from .RMSprop   import RMSprop
 from .SGD       import SGD
+from .optimizer import Optimizer

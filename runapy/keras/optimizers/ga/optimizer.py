@@ -1,13 +1,16 @@
 import keras.optimizers
 import keras.backend as K
 
-from . import hooks
+from runapy import log
+from runapy.keras.optimizers.ga import hooks
 
 class Optimizer(keras.optimizers.Optimizer):
-    def __init__(self, optimizer, steps, **kwargs):
+    def __init__(self, optimizer, steps):
         super(Optimizer, self).__init__()
         self.optimizer = optimizer
         self.steps     = steps
+
+        log.debug('Wrapping \'%s\' optimizer in GA with %d steps', optimizer.__class__.__name__, steps)
 
     def get_updates(self, loss, params):
         grads = self.get_gradients(loss, params)
