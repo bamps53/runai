@@ -1,16 +1,19 @@
+import sys
+
 import keras.optimizers
 import keras.backend as K
 
 from runapy import log
-from runapy.keras.optimizers.ga import hooks
+
+from . import hooks
 
 class Optimizer(keras.optimizers.Optimizer):
     def __init__(self, optimizer, steps):
         super(Optimizer, self).__init__()
         self.optimizer = optimizer
-        self.steps     = steps
+        self.steps = steps
 
-        log.debug('Wrapping \'%s\' optimizer in GA with %d steps', optimizer.__class__.__name__, steps)
+        log.debug('Wrapping \'%s\' Keras optimizer with GA of %d steps', optimizer.__class__.__name__, steps)
 
     def get_updates(self, loss, params):
         grads = self.get_gradients(loss, params)
@@ -73,3 +76,15 @@ class Optimizer(keras.optimizers.Optimizer):
         config = self.optimizer.get_config()
         config['steps'] = self.steps
         return config
+
+def _optimizer(optimizer):
+    setattr(
+        sys.modules[__name__],
+        optimizer,
+        type(
+            optimizer, (Optimizer,),
+            { '__init__': lambda self, steps, **kwargs: Optimizer.__init__(self, optimizer=getattr(keras.optimizers, optimizer)(**kwargs), steps=steps) }
+        )
+    )
+
+[_optimizer(optimizer) for optimizer in ['SGD', 'RMSprop', 'Adagrad', 'Adadelta', 'Adam', 'Adamax', 'Nadam']]

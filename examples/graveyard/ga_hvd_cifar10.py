@@ -4,6 +4,7 @@ from keras.datasets import cifar10
 from keras.applications.resnet50 import ResNet50
 from keras.preprocessing.image import ImageDataGenerator
 from skimage.transform import resize
+import random
 
 import keras.utils
 import keras.backend as K
@@ -12,7 +13,7 @@ import time
 
 import horovod.keras as hvd
 
-import runapy.keras.optimizers.ga
+import runapy.ga.keras.optimizers
 
 # Horovod: initialize Horovod.
 hvd.init()
@@ -76,17 +77,17 @@ def run(epochs, batch_size, lr, gpus, data_augmentation, cpu_relocation, cpu_mer
 
     model = ResNet50(include_top=True, weights=None, classes=10)
 
-    # initiate RMSprop optimizer
-    opt = keras.optimizers.sgd(lr=lr)
-    # opt = runapy.keras.optimizers.ga.SGD(steps=2, lr=lr)
+    STEPS = 2
+
+    if random.choice([True, False]):
+        opt = keras.optimizers.SGD(lr=lr)
+        opt = runapy.ga.keras.optimizers.Optimizer(opt, STEPS)
+    else:
+        opt = runapy.ga.keras.optimizers.SGD(STEPS, lr=lr)
+
     opt = hvd.DistributedOptimizer(opt)
 
     # Not needed to change the device scope for model definition:
-
-    print("Using " + str(gpus) + " GPU(s)")
-
-    # if gpus > 1:
-    #     model = keras.utils.multi_gpu_model(model, gpus=gpus, cpu_relocation=cpu_relocation, cpu_merge=cpu_merge)
 
     model.compile(loss='categorical_crossentropy',
         optimizer=opt,
@@ -128,4 +129,4 @@ def run(epochs, batch_size, lr, gpus, data_augmentation, cpu_relocation, cpu_mer
     print("BYE BYE")
 
 if __name__ == "__main__":
-    run(epochs=1, batch_size=64, lr=1e-3, gpus=2, data_augmentation=True, cpu_relocation=False, cpu_merge=True)
+    run(epochs=1, batch_size=64, lr=1e-3 * hvd.size(), data_augmentation=True, cpu_relocation=False, cpu_merge=True)
