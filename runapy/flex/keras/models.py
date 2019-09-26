@@ -1,7 +1,8 @@
 import keras.optimizers
 
 from runapy import log
-from runapy.ga.keras.optimizers import Optimizer as GA
+import runapy.flex
+import runapy.ga
 
 def compile(self, *args, **kwargs):
     if 'optimizer' in kwargs:
@@ -17,13 +18,14 @@ def compile(self, *args, **kwargs):
 
     log.debug('compile() called with optimizer %s', optimizer)
     
-    config = self.__runai__['config']
+    if runapy.flex.gpus > 1:
+        log.debug('Wrapping optimizer with Horovod')
+        
+        import horovod.keras as hvd
+        optimizer = hvd.DistributedOptimizer(optimizer)
 
-    if config.steps > 1:
-        log.debug('Using GA with %d steps', config.steps)
-        optimizer = GA(optimizer, config.steps)
-    else:
-        log.debug('GA is not needed')
+    if runapy.flex.steps > 1:
+        optimizer = runapy.ga.keras.optimizers.Optimizer(optimizer, runapy.flex.steps)
 
     kwargs['optimizer'] = optimizer
 
@@ -31,16 +33,34 @@ def compile(self, *args, **kwargs):
 
 def fit(self, *args, **kwargs):
     log.debug('fit() called')
+
+    if runapy.flex.gpus > 1:
+        import horovod.keras as hvd
+        callbacks = [hvd.callbacks.BroadcastGlobalVariablesCallback(0)]
+
+        if 'callbacks' in kwargs:
+            callbacks.extend(kwargs['callbacks'])
+
+        kwargs['callbacks'] = callbacks
+
     return self.__runai__['fit'](*args, **kwargs)
 
 def fit_generator(self, *args, **kwargs):
-    log.critical('fit_generator() called')
-    raise NotImplementedError('fit_generator() is not yet supported with Run:AI')
+    log.debug('fit_generator() called')
 
-def Model(model, config):
-    __runai__ = dict(
-        config=config,
-    )
+    if runapy.flex.gpus > 1:
+        import horovod.keras as hvd
+        callbacks = [hvd.callbacks.BroadcastGlobalVariablesCallback(0)]
+
+        if 'callbacks' in kwargs:
+            callbacks.extend(kwargs['callbacks'])
+
+        kwargs['callbacks'] = callbacks
+
+    return self.__runai__['fit_generator'](*args, **kwargs)
+
+def Model(model):
+    __runai__ = {}
 
     for method in [compile, fit, fit_generator]: # TODO(levosos): what about evaluate() and predict()?
         __runai__[method.__name__] = getattr(model, method.__name__)

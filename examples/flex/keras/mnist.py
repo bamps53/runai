@@ -6,6 +6,8 @@ from keras.layers import Dense, Dropout
 
 import runapy.flex
 
+runapy.flex.init(global_batch_size=128, max_gpu_batch_size=16, gpus=1)
+
 NUM_CLASSES = 10
 
 (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
@@ -27,25 +29,22 @@ model.add(Dense(512, activation='relu'))
 model.add(Dropout(0.2))
 model.add(Dense(NUM_CLASSES, activation='softmax'))
 
-# create a Run:AI flex configuration
-config = runapy.flex.Config(lr=1.0, global_batch_size=128, max_gpu_batch_size=16, gpus=1)
-
-# convert 'model' to a Run:AI flex model
-model = runapy.flex.keras.models.Model(model, config)
+# wrap 'model' with Run:AI elasticity
+model = runapy.flex.keras.models.Model(model)
 
 model.compile(
     loss='categorical_crossentropy',
-    optimizer=keras.optimizers.Adadelta(lr=config.lr), # pass any valid Keras optimizer
+    optimizer=keras.optimizers.Adadelta(lr=1.0), # pass any valid Keras optimizer
     metrics=['accuracy']
 )
 
 model.fit(x_train, y_train,
-                    batch_size=config.batch_size, # use the calculated configuration (batch size in this case)
+                    batch_size=runapy.flex.batch_size, # use the calculated configuration (batch size in this case)
                     epochs=1,
-                    verbose=config.master,
+                    verbose=runapy.flex.master,
                     validation_data=(x_test, y_test))
 
-score = model.evaluate(x_test, y_test, verbose=config.master)
+score = model.evaluate(x_test, y_test, verbose=runapy.flex.master)
 
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])

@@ -3,26 +3,23 @@ import unittest
 
 import runapy.flex
 
-setattr(random, 'lr', lambda: random.random())
-setattr(random, 'batch_size', lambda max=None: random.randint(1, max if max else 100))
-setattr(random, 'gpus', lambda: 1) # currently multi-gpu is not supported
-
-class Config(unittest.TestCase):
+class Init(unittest.TestCase):
     def testStatics(self):
-        lr = random.lr()
-        global_batch_size = random.batch_size()
-        gpus = random.gpus()
+        global_batch_size = random.randint(10, 100)
+        max_gpu_batch_size = random.randint(1, global_batch_size) # must be less than 'global_batch_size' because we don't support uneven spread
+        gpus = 1 # currently multi-gpu is not supported in tests
         
-        config = runapy.flex.Config(
-            lr=lr,
+        runapy.flex.init(
             global_batch_size=global_batch_size,
-            max_gpu_batch_size=random.batch_size(global_batch_size), # must be less than 'global_batch_size' because we don't support uneven spread
+            max_gpu_batch_size=max_gpu_batch_size,
             gpus=gpus
         )
 
-        self.assertEqual(config.lr, lr)
-        self.assertEqual(config.global_batch_size, global_batch_size)
-        self.assertEqual(config.gpus, gpus)
+        self.assertEqual(runapy.flex.global_batch_size, global_batch_size)
+        self.assertEqual(runapy.flex.gpus, gpus)
+        self.assertEqual(runapy.flex.master, True)
+        
+        self.assertFalse(hasattr(runapy.flex, 'hvd'))
 
 if __name__ == '__main__':
     unittest.main()
