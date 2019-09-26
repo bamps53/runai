@@ -40,13 +40,10 @@ class Optimizer(unittest.TestCase):
         )
 
         wrapped = runai.ga.keras.optimizers.Optimizer(getattr(keras.optimizers, name)(), steps=steps)
-        self.assertEqual(wrapped.__class__.__name__, 'Optimizer')
-        
         specific = getattr(runai.ga.keras.optimizers, name)(steps=steps)
-        self.assertEqual(specific.__class__.__name__, name)
 
         for optimizer in [wrapped, specific]:
-            self.assertEqual(optimizer.optimizer.__class__.__name__, name) # optimizer.optimizer is the Keras optimizer
+            self.assertEqual(optimizer.__class__.__name__, name)
             
             us = self._run(
                 params,

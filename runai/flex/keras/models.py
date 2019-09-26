@@ -18,14 +18,14 @@ def compile(self, *args, **kwargs):
 
     log.debug('compile() called with optimizer %s', optimizer)
     
+    if runai.flex.steps > 1:
+        optimizer = runai.ga.keras.optimizers.Optimizer(optimizer, runai.flex.steps)
+
     if runai.flex.gpus > 1:
         log.debug('Wrapping optimizer with Horovod')
         
         import horovod.keras as hvd
         optimizer = hvd.DistributedOptimizer(optimizer)
-
-    if runai.flex.steps > 1:
-        optimizer = runai.ga.keras.optimizers.Optimizer(optimizer, runai.flex.steps)
 
     kwargs['optimizer'] = optimizer
 
