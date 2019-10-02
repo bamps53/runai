@@ -1,4 +1,4 @@
-from runapy.profiler import Profiler
+from runai.profiler import Profiler
 
 import tensorflow
 from tensorflow.python import pywrap_tensorflow as tf_c_api

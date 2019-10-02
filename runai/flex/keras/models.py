@@ -1,8 +1,8 @@
 import keras.optimizers
 
-from runapy import log
-import runapy.flex
-import runapy.ga
+from runai import log
+import runai.flex
+import runai.ga
 
 def compile(self, *args, **kwargs):
     if 'optimizer' in kwargs:
@@ -18,14 +18,14 @@ def compile(self, *args, **kwargs):
 
     log.debug('compile() called with optimizer %s', optimizer)
     
-    if runapy.flex.gpus > 1:
+    if runai.flex.gpus > 1:
         log.debug('Wrapping optimizer with Horovod')
         
         import horovod.keras as hvd
         optimizer = hvd.DistributedOptimizer(optimizer)
 
-    if runapy.flex.steps > 1:
-        optimizer = runapy.ga.keras.optimizers.Optimizer(optimizer, runapy.flex.steps)
+    if runai.flex.steps > 1:
+        optimizer = runai.ga.keras.optimizers.Optimizer(optimizer, runai.flex.steps)
 
     kwargs['optimizer'] = optimizer
 
@@ -34,7 +34,7 @@ def compile(self, *args, **kwargs):
 def fit(self, *args, **kwargs):
     log.debug('fit() called')
 
-    if runapy.flex.gpus > 1:
+    if runai.flex.gpus > 1:
         import horovod.keras as hvd
         callbacks = [hvd.callbacks.BroadcastGlobalVariablesCallback(0)]
 
@@ -48,7 +48,7 @@ def fit(self, *args, **kwargs):
 def fit_generator(self, *args, **kwargs):
     log.debug('fit_generator() called')
 
-    if runapy.flex.gpus > 1:
+    if runai.flex.gpus > 1:
         import horovod.keras as hvd
         callbacks = [hvd.callbacks.BroadcastGlobalVariablesCallback(0)]
 

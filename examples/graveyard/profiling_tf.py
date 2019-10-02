@@ -1,8 +1,8 @@
 from __future__ import print_function
 
-import runapy.profiler
+import runai.profiler
 
-runapy.profiler.profile(200, '/projects/runapy')
+runai.profiler.profile(200, '/projects/runai')
 
 import time
 import tensorflow as tf

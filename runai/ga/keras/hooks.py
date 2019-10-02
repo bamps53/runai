@@ -1,6 +1,6 @@
 import keras.backend as K
 
-from runapy.utils import Hook
+from runai.utils import Hook
 
 class get_gradients(Hook):
     def __init__(self, optimizer, gradients):

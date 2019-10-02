@@ -1,7 +1,7 @@
 import sys
 import unittest
 
-import runapy.utils
+import runai.utils
 
 def foo():
     return 42
@@ -10,7 +10,7 @@ class Object:
     def foo(self):
         return 42
 
-class Hook(runapy.utils.Hook):
+class Hook(runai.utils.Hook):
     def __init__(self, module):
         super(Hook, self).__init__(module, 'foo')
 

@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: circleci/python
 
-    working_directory: ~/runapy
+    working_directory: ~/runai
 
     steps:
       - checkout
@@ -16,4 +16,4 @@ jobs:
 
       - run:
             name: Test
-            command: PYTHONPATH=$PYTHONPATH:~/runapy python -m unittest discover -s tests -v
+            command: PYTHONPATH=$PYTHONPATH:~/runai python -m unittest discover -s tests -v

@@ -1,4 +1,4 @@
-from runapy.profiler import Profiler
+from runai.profiler import Profiler
 
 import tensorflow
 

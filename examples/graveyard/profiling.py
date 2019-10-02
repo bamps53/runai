@@ -1,8 +1,8 @@
 from __future__ import print_function
 
-import runapy.profiler
+import runai.profiler
 
-runapy.profiler.profile(20, '/projects/runapy')
+runai.profiler.profile(20, '/projects/runai')
 
 
 import keras
@@ -11,7 +11,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout
 
 import keras.optimizers
-import runapy.keras.optimizers.ga
+import runai.keras.optimizers.ga
 
 num_classes = 10
 epochs = 1
@@ -47,7 +47,7 @@ model.summary()
 
 # Run:AI
 batch_size = 2
-optimizer = runapy.keras.optimizers.ga.Adam(steps=5)
+optimizer = runai.keras.optimizers.ga.Adam(steps=5)
 
 model.compile(loss='categorical_crossentropy',
               optimizer=optimizer,

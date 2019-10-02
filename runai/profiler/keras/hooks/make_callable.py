@@ -1,6 +1,6 @@
 import tensorflow
 
-from runapy.utils import Hook
+from runai.utils import Hook
 
 class make_callable(Hook):
     def __init__(self):

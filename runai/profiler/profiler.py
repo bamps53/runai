@@ -3,7 +3,7 @@ import os
 
 from tensorflow.python.client import timeline
 
-from runapy.utils import Hook
+from runai.utils import Hook
 
 class Profiler(Hook):
     def __init__(self, module, method, steps, dst):

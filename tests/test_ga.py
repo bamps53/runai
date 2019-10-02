@@ -5,14 +5,14 @@ import keras.backend as K
 import keras.optimizers
 import numpy as np
 
-import runapy.ga
+import runai.ga
 
 class Optimizer(unittest.TestCase):
     def _run(self, params, gradients, optimizer):
         params = [K.variable(param) for param in params]
         placeholders = [K.placeholder(shape=params[i].shape) for i in range(len(params))]
 
-        with runapy.ga.keras.hooks.get_gradients(optimizer, placeholders):
+        with runai.ga.keras.hooks.get_gradients(optimizer, placeholders):
             updates = optimizer.get_updates(None, params) # 'loss' argument is unnecessary because of our hook
         
         for step in range(len(gradients)):
@@ -39,10 +39,10 @@ class Optimizer(unittest.TestCase):
             getattr(keras.optimizers, name)()
         )
 
-        wrapped = runapy.ga.keras.optimizers.Optimizer(getattr(keras.optimizers, name)(), steps=steps)
+        wrapped = runai.ga.keras.optimizers.Optimizer(getattr(keras.optimizers, name)(), steps=steps)
         self.assertEqual(wrapped.__class__.__name__, 'Optimizer')
         
-        specific = getattr(runapy.ga.keras.optimizers, name)(steps=steps)
+        specific = getattr(runai.ga.keras.optimizers, name)(steps=steps)
         self.assertEqual(specific.__class__.__name__, name)
 
         for optimizer in [wrapped, specific]:

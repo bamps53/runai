@@ -9,7 +9,7 @@ import math
 import tensorflow as tf
 import horovod.keras as hvd
 
-import runapy.keras.optimizers.ga
+import runai.keras.optimizers.ga
 
 # Horovod: initialize Horovod.
 hvd.init()
@@ -67,7 +67,7 @@ model.add(Dense(num_classes, activation='softmax'))
 
 # Horovod: adjust learning rate based on number of GPUs.
 # opt = keras.optimizers.Adadelta(lr=1.0 * hvd.size())
-opt = runapy.keras.optimizers.ga.Adadelta(steps=2, lr=1.0 * hvd.size())
+opt = runai.keras.optimizers.ga.Adadelta(steps=2, lr=1.0 * hvd.size())
 
 # Horovod: add Horovod Distributed Optimizer.
 opt = hvd.DistributedOptimizer(opt)

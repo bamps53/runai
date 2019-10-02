@@ -37,7 +37,7 @@ except ImportError:
     )
 
 # LOG
-log = logging.getLogger("runapy")
+log = logging.getLogger("runai")
 log.setLevel(logging.DEBUG)
 
 # STDERR

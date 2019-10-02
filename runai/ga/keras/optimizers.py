@@ -3,7 +3,7 @@ import sys
 import keras.optimizers
 import keras.backend as K
 
-from runapy import log
+from runai import log
 
 from . import hooks
 

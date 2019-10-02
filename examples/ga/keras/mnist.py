@@ -8,7 +8,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout
 
 import keras.optimizers
-import runapy.ga
+import runai.ga
 
 NUM_CLASSES = 10
 BATCH_SIZE = 10
@@ -39,9 +39,9 @@ model.summary()
 
 if random.choice([True, False]):
     optimizer = keras.optimizers.Adam()
-    optimizer = runapy.ga.keras.optimizers.Optimizer(optimizer, STEPS)
+    optimizer = runai.ga.keras.optimizers.Optimizer(optimizer, STEPS)
 else:
-    optimizer = runapy.ga.keras.optimizers.Adam(STEPS)
+    optimizer = runai.ga.keras.optimizers.Adam(STEPS)
 
 model.compile(loss='categorical_crossentropy',
               optimizer=optimizer,

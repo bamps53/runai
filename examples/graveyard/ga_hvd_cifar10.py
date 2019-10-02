@@ -13,7 +13,7 @@ import time
 
 import horovod.keras as hvd
 
-import runapy.ga.keras.optimizers
+import runai.ga.keras.optimizers
 
 # Horovod: initialize Horovod.
 hvd.init()
@@ -81,9 +81,9 @@ def run(epochs, batch_size, lr, gpus, data_augmentation, cpu_relocation, cpu_mer
 
     if random.choice([True, False]):
         opt = keras.optimizers.SGD(lr=lr)
-        opt = runapy.ga.keras.optimizers.Optimizer(opt, STEPS)
+        opt = runai.ga.keras.optimizers.Optimizer(opt, STEPS)
     else:
-        opt = runapy.ga.keras.optimizers.SGD(STEPS, lr=lr)
+        opt = runai.ga.keras.optimizers.SGD(STEPS, lr=lr)
 
     opt = hvd.DistributedOptimizer(opt)
 

@@ -2,7 +2,7 @@ from __future__ import absolute_import # to support 'import keras.backend' in Py
 
 import sys
 
-from runapy import log
+from runai import log
 
 from . import keras
 

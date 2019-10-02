@@ -4,9 +4,9 @@ import keras
 from keras.models import Sequential
 from keras.layers import Dense, Dropout
 
-import runapy.flex
+import runai.flex
 
-runapy.flex.init(global_batch_size=128, max_gpu_batch_size=16, gpus=1)
+runai.flex.init(global_batch_size=128, max_gpu_batch_size=16, gpus=1)
 
 NUM_CLASSES = 10
 
@@ -30,7 +30,7 @@ model.add(Dropout(0.2))
 model.add(Dense(NUM_CLASSES, activation='softmax'))
 
 # wrap 'model' with Run:AI elasticity
-model = runapy.flex.keras.models.Model(model)
+model = runai.flex.keras.models.Model(model)
 
 model.compile(
     loss='categorical_crossentropy',
@@ -39,12 +39,12 @@ model.compile(
 )
 
 model.fit(x_train, y_train,
-                    batch_size=runapy.flex.batch_size, # use the calculated configuration (batch size in this case)
+                    batch_size=runai.flex.batch_size, # use the calculated configuration (batch size in this case)
                     epochs=1,
-                    verbose=runapy.flex.master,
+                    verbose=runai.flex.master,
                     validation_data=(x_test, y_test))
 
-score = model.evaluate(x_test, y_test, verbose=runapy.flex.master)
+score = model.evaluate(x_test, y_test, verbose=runai.flex.master)
 
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])

@@ -9,9 +9,9 @@ import keras.utils
 import keras.backend as K
 import time
 
-import runapy.keras.optimizers.ga
+import runai.keras.optimizers.ga
 
-# class _get_available_devices_hook(runapy.keras.optimizers.ga.hooks.Hook):
+# class _get_available_devices_hook(runai.keras.optimizers.ga.hooks.Hook):
 #     def __init__(self, devices):
 #         super(_get_available_devices_hook, self).__init__(keras.utils.multi_gpu_utils, '_get_available_devices')
 #         self.devices = devices
@@ -19,7 +19,7 @@ import runapy.keras.optimizers.ga
 #     def impl(self):
 #         return self.devices
 
-# class _normalize_device_name_hook(runapy.keras.optimizers.ga.hooks.Hook):
+# class _normalize_device_name_hook(runai.keras.optimizers.ga.hooks.Hook):
 #     def __init__(self):
 #         super(_normalize_device_name_hook, self).__init__(keras.utils.multi_gpu_utils, '_normalize_device_name')
     
@@ -81,7 +81,7 @@ def run(epochs, batch_size, lr, gpus, data_augmentation, cpu_relocation, cpu_mer
 
     # initiate RMSprop optimizer
     # opt = keras.optimizers.sgd(lr=lr)
-    opt = runapy.keras.optimizers.ga.SGD(steps=2, lr=lr)
+    opt = runai.keras.optimizers.ga.SGD(steps=2, lr=lr)
 
     # Not needed to change the device scope for model definition:
 
