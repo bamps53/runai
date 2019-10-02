@@ -1,11 +1,3 @@
-<div style="background-color:#103048; padding: 20px">
-    <div align="center">
-        <img src="https://www.run.ai/wp-content/uploads/2019/02/Asset-1.svg" width="30%" height="20%"/>
-    </div>
-</div>
-
----
-
 # Run:AI Python library
 
 Public functional modules for Keras and TF
