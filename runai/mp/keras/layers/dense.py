@@ -4,28 +4,24 @@ import keras.layers
 from runai import log
 import runai.mp
 
+from . import coordinator
+
 class Dense(keras.layers.Dense):
-    def __init__(self, *args, **kwargs):
-        super(Dense, self).__init__(*args, **kwargs)
-        log.debug('Dense.__init__()')
-
     def build(self, input_shape):
-        log.debug('Dense.build(input_shape=%s)', input_shape)
-
         assert len(input_shape) == 2 # TODO(levosos): support more than two dimensions
         
-        cin = input_shape[-1]
+        cin  = input_shape[-1]
+        cout = self.units
 
         if runai.mp.method == runai.mp.Method.Cin:
             self.cin  = cin // runai.mp.splits # TODO(levosos): support uneven division
-            self.cout = self.units
+            self.cout = cout
         elif runai.mp.method == runai.mp.Method.Cout:
             self.cin  = cin
-            self.cout = self.units // runai.mp.splits # TODO(levosos): support uneven division
+            self.cout = cout // runai.mp.splits # TODO(levosos): support uneven division
 
-        log.info('Cin: %d -> %d; Cout: %d -> %d' % (cin, self.cin, self.units, self.cout))
+        log.debug('Declaring %d weights of shape (%d,%d) for dense layer \'%s\'' % (runai.mp.splits, self.cin, self.cout, self.name))
 
-        log.info('Declaring %d weights of shape (%d,%d) [instead of (%d,%d)]' % (runai.mp.splits, self.cin, self.cout, cin, self.units))
         self.kernels = [self.add_weight(
             shape=(self.cin, self.cout),
             initializer=self.kernel_initializer,
@@ -35,9 +31,17 @@ class Dense(keras.layers.Dense):
         ) for i in range(runai.mp.splits)]
 
         if self.use_bias:
-            log.info('Declaring %d biases of shape (%d,) [instead of (%d,)]' % (runai.mp.splits, self.cout, self.units))
+            size = self.cout
+            
+            if runai.mp.method == runai.mp.Method.Cin:
+                # biases are added after the reduce-split
+                # therefore, in both cin and cout it will be splitted
+                size = size // runai.mp.splits
+            
+            log.debug('Declaring %d biases of shape (%d,) for dense layer \'%s\'' % (runai.mp.splits, size, self.name))
+            
             self.biases = [self.add_weight(
-                shape=(self.cout,),
+                shape=(size,),
                 initializer=self.bias_initializer,
                 name='bias_%d' % i,
                 regularizer=self.bias_regularizer,
@@ -48,29 +52,33 @@ class Dense(keras.layers.Dense):
         self.built = True
 
     def call(self, inputs):
-        log.debug('Dense.call(inputs=%s)', inputs)
-        
         assert not isinstance(inputs, (tuple, list))
-
-        def input(i):
-            if runai.mp.method == runai.mp.Method.Cin:
-                return inputs[:, self.cin * i : self.cin * (i + 1)]
-            elif runai.mp.method == runai.mp.Method.Cout:
-                return inputs
         
-        def impl(i):
-            output = K.dot(input(i), self.kernels[i])
-            if self.use_bias:
-                output = K.bias_add(output, self.biases[i], data_format='channels_last')
-            if self.activation is not None:
-                output = self.activation(output)
-            return output
+        if runai.mp.method == runai.mp.Method.Cin:
+            if coordinator.registered(inputs):
+                log.info('Using parallelised input for dense layer \'%s\'', self.name)
+                inputs = coordinator.resolve(inputs)
+            else:
+                log.info('Splitting non-parallelised input for layer \'%s\'', self.name)
+                inputs = [inputs[:, self.cin * i : self.cin * (i + 1)] for i in range(runai.mp.splits)] # TODO(levosos): support more than two dimensions
+        elif runai.mp.method == runai.mp.Method.Cout:
+            inputs = [inputs] * runai.mp.splits
 
-        duplications = [impl(i) for i in range(runai.mp.splits)]
+        outputs = [K.dot(input, kernel) for input, kernel in zip(inputs, self.kernels)] # TODO(levosos): device placement
 
         if runai.mp.method == runai.mp.Method.Cin:
-            return keras.layers.Add()(duplications)
-        elif runai.mp.method == runai.mp.Method.Cout:
-            return K.concatenate(duplications, axis=-1)
+            reduced = keras.layers.Add()(outputs) # TODO(levosos): implement better reduce-split
+            size = self.cout // runai.mp.splits
+            outputs = [reduced[:, size * i : size * (i + 1)] for i in range(runai.mp.splits)] # TODO(levosos): support more than two dimensions of 'reduced'
+
+        if self.use_bias:
+            outputs = [K.bias_add(output, bias, data_format='channels_last') for output, bias in zip(outputs, self.biases)] # TODO(levosos): device placement
+
+        if self.activation is not None:
+            outputs = [self.activation(output) for output in outputs] # TODO(levosos): device placement
         
+        merged = keras.layers.Concatenate(axis=-1)(outputs)
+        coordinator.register(merged, outputs)
+        return merged
+
     # TODO(levosos): implement get_config()
