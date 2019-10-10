@@ -1,5 +1,6 @@
 import keras.backend as K
 import keras.layers
+import tensorflow as tf
 
 from runai import log
 import runai.mp
@@ -60,7 +61,7 @@ class Dense(keras.layers.Dense):
                 inputs = coordinator.resolve(inputs)
             else:
                 log.info('Splitting non-parallelised input for layer \'%s\'', self.name)
-                inputs = [inputs[:, self.cin * i : self.cin * (i + 1)] for i in range(runai.mp.splits)] # TODO(levosos): support more than two dimensions
+                inputs = tf.split(inputs, runai.mp.splits, axis=-1)
         elif runai.mp.method == runai.mp.Method.Cout:
             inputs = [inputs] * runai.mp.splits
 
@@ -68,8 +69,7 @@ class Dense(keras.layers.Dense):
 
         if runai.mp.method == runai.mp.Method.Cin:
             reduced = keras.layers.Add()(outputs) # TODO(levosos): implement better reduce-split
-            size = self.cout // runai.mp.splits
-            outputs = [reduced[:, size * i : size * (i + 1)] for i in range(runai.mp.splits)] # TODO(levosos): support more than two dimensions of 'reduced'
+            outputs = tf.split(reduced, runai.mp.splits, axis=-1)
 
         if self.use_bias:
             outputs = [K.bias_add(output, bias, data_format='channels_last') for output, bias in zip(outputs, self.biases)] # TODO(levosos): device placement
@@ -80,5 +80,3 @@ class Dense(keras.layers.Dense):
         merged = keras.layers.Concatenate(axis=-1)(outputs)
         coordinator.register(merged, outputs)
         return merged
-
-    # TODO(levosos): implement get_config()
