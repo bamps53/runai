@@ -3,6 +3,8 @@ from __future__ import print_function
 import keras
 import runai
 
+runai.mp.init(splits=2, method=runai.mp.Method.Cin)
+
 NUM_CLASSES = 10
 
 # the data, split between train and test sets
@@ -21,8 +23,8 @@ y_test = keras.utils.to_categorical(y_test, NUM_CLASSES)
 
 model = keras.models.Sequential()
 model.add(keras.layers.Dense(512, activation='relu', input_shape=(784,)))
-model.add(runai.mp.keras.layers.Dense(splits=2, method=runai.mp.Method.Cin, units=512, activation='relu'))
-model.add(runai.mp.keras.layers.Dense(splits=4, method=runai.mp.Method.Cout, units=512, activation='relu'))
+model.add(keras.layers.Dense(512, activation='relu'))
+model.add(keras.layers.Dense(512, activation='relu'))
 model.add(keras.layers.Dropout(0.2))
 model.add(keras.layers.Dense(512, activation='relu'))
 model.add(keras.layers.Dropout(0.2))
