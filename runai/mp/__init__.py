@@ -25,5 +25,6 @@ def init(splits, method):
 
     from .keras import layers
 
+    keras.layers.Conv2D     = layers.Conv2D
     keras.layers.Dense      = layers.Dense
     keras.layers.Dropout    = layers.Dropout
