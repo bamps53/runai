@@ -15,7 +15,7 @@ def init(splits, method):
         raise ValueError('Unrecognized method: %s' % method)
 
     log.info('Initializing MP (%s) with %s splits', method.name, splits)
-
+    
     import sys
 
     setattr(sys.modules[__name__], 'splits', splits)
@@ -25,4 +25,5 @@ def init(splits, method):
 
     from .keras import layers
 
-    keras.layers.Dense = layers.Dense
+    keras.layers.Dense      = layers.Dense
+    keras.layers.Dropout    = layers.Dropout
