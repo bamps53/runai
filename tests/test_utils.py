@@ -1,3 +1,4 @@
+import random
 import sys
 import unittest
 
@@ -56,6 +57,18 @@ class TestHook(unittest.TestCase):
         
         hook.disable()
         assert o.foo() == 42
+
+class TestRandom(unittest.TestCase):
+    def test_string(self):
+        for _ in range(100):
+            length = random.randint(1, 10)
+            a = runai.utils.random.string(length=length)
+            b = runai.utils.random.string(length=length)
+
+            assert len(a) == length
+            assert len(b) == length
+
+            assert a != b
 
 if __name__ == '__main__':
     unittest.main()
