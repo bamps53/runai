@@ -12,4 +12,5 @@ CircleCi: [![CircleCI](https://circleci.com/gh/run-ai/runai/tree/master.svg?styl
 |------------|--------------------------------------------|--------------------|--------------------|
 | `flex`     | Make Keras models elastic                  | :x:                | :white_check_mark: |
 | `ga`       | Gradient accumulation for Keras optimizers | :x:                | :white_check_mark: |
+| `mp`       | Model-parallelism support for Keras layers | :x:                | :white_check_mark: |
 | `profiler` | Export timeline of TF/Keras models         | :white_check_mark: | :white_check_mark: |
