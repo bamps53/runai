@@ -15,7 +15,7 @@ class Hook(runai.utils.Hook):
     def __init__(self, module):
         super(Hook, self).__init__(module, 'foo')
 
-    def impl(self):
+    def __hook__(self):
         return 217
 
 class TestHook(unittest.TestCase):

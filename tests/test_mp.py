@@ -31,20 +31,20 @@ class KeepLayer(unittest.TestCase):
             def __init__(self):
                 super(init_hook, self).__init__(keras.layers.Concatenate, '__init__')
             
-            def impl(self, *args, **kwargs):
+            def __hook__(self, *args, **kwargs):
                 if len(args) == 2:
                     self.axis = args[1]
                 else:
                     self.axis = kwargs['axis']
                 
-                self.original(*args, **kwargs)
+                self.__original__(*args, **kwargs)
         
         class call_hook(runai.utils.Hook):
             def __init__(self):
                 super(call_hook, self).__init__(keras.layers.Concatenate, '__call__')
                 self.merge = runai.utils.random.string()
             
-            def impl(self, *args, **kwargs):
+            def __hook__(self, *args, **kwargs):
                 self.inputs = args[1]
                 return self.merge
         
