@@ -92,5 +92,54 @@ class TestRandom(unittest.TestCase):
         
         assert len(runai.utils.random.strings(count=count)) == count
 
+class TestAttribute(unittest.TestCase):
+    def test_scope_single(self):
+        obj = Object()
+
+        name = runai.utils.random.string()
+        value = runai.utils.random.string()
+
+        assert not hasattr(obj, name)
+
+        with runai.utils.Attribute(obj, name, value):
+            assert getattr(obj, name) == value
+        
+        assert not hasattr(obj, name)
+        
+    def test_scope_multiple(self):
+        obj = Object()
+
+        count = runai.utils.random.number(2, 10)
+
+        names = runai.utils.random.strings(count)
+        values = runai.utils.random.strings(count)
+
+        for name in names:
+            assert not hasattr(obj, name)
+
+        with runai.utils.Attribute(obj, names, values):
+            for name, value in zip(names, values):
+                assert getattr(obj, name) == value
+        
+        for name in names:
+            assert not hasattr(obj, name)
+    
+    def test_rename(self):
+        obj = Object()
+
+        old = runai.utils.random.string()
+        new = runai.utils.random.string()
+        value = runai.utils.random.string()
+
+        setattr(obj, old, value)
+
+        assert hasattr(obj, old)
+        assert not hasattr(obj, new)
+
+        runai.utils.attribute.rename(obj, old, new)
+        
+        assert not hasattr(obj, old)
+        assert getattr(obj, new) == value
+
 if __name__ == '__main__':
     unittest.main()
