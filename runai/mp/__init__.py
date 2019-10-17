@@ -36,3 +36,4 @@ def init(splits, method):
     keras.layers.Minimum        = layers.Minimum
     keras.layers.Multiply       = layers.Multiply
     keras.layers.Subtract       = layers.Subtract
+    keras.layers.ZeroPadding2D  = layers.ZeroPadding2D
