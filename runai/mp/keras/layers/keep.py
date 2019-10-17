@@ -45,9 +45,12 @@ class Keep(keras.layers.Layer):
     class Final(Runai, Keras): pass
     """
     def call(self, inputs):
-        assert not isinstance(inputs, (tuple, list))
+        if isinstance(inputs, (tuple, list)):
+            valid = all([coordinator.registered(input) for input in inputs])
+        else:
+            valid = coordinator.registered(inputs)
 
-        if not coordinator.registered(inputs):
+        if not valid:
             log.debug('Not parallelising \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
             return super(Keep, self).call(inputs)
 
@@ -55,11 +58,15 @@ class Keep(keras.layers.Layer):
 
         channel_axis = 1 if getattr(self, 'data_format', 'channels_last') == 'channels_first' else -1
 
-        def output(gpu, input):
+        def output(gpu, inputs):
             with tf.device('/device:GPU:%d' % gpu):
-                return super(Keep, self).call(input)
+                return super(Keep, self).call(inputs)
 
-        outputs = [output(gpu, input) for gpu, input in enumerate(coordinator.resolve(inputs))]
+        if isinstance(inputs, (tuple, list)):
+            outputs = [output(gpu, inputs) for gpu, inputs in enumerate(zip([coordinator.resolve(input) for input in inputs]))]
+        else:
+            outputs = [output(gpu, input) for gpu, input in enumerate(coordinator.resolve(inputs))]
+
         merged = keras.layers.Concatenate(axis=channel_axis)(outputs)
         coordinator.register(merged, outputs)
         return merged
