@@ -3,6 +3,7 @@ import keras.layers
 
 import runai
 
+from .keep import Keep
 from .parallelised import Parallelised
 
 class Dense(Parallelised, keras.layers.Dense):
@@ -56,3 +57,5 @@ class Dense(Parallelised, keras.layers.Dense):
                 outputs)
         
         return self.merge(outputs, channel_axis=-1)
+
+class Dropout(Keep, keras.layers.Dropout): pass
