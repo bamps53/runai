@@ -77,8 +77,8 @@ class TestHook(unittest.TestCase):
 
 class TestRandom(unittest.TestCase):
     def test_string(self):
-        for _ in range(100):
-            length = random.randint(1, 10)
+        for _ in range(50):
+            length = runai.utils.random.number(5, 10)
             a = runai.utils.random.string(length=length)
             b = runai.utils.random.string(length=length)
 
@@ -86,6 +86,11 @@ class TestRandom(unittest.TestCase):
             assert len(b) == length
 
             assert a != b
+
+    def test_strings(self):
+        count = runai.utils.random.number(5, 10)
+        
+        assert len(runai.utils.random.strings(count=count)) == count
 
 if __name__ == '__main__':
     unittest.main()
