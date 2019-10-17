@@ -1,4 +1,5 @@
 import keras.layers
+import tensorflow as tf
 
 from runai import log
 
@@ -54,8 +55,11 @@ class Keep(keras.layers.Layer):
 
         channel_axis = 1 if getattr(self, 'data_format', 'channels_last') == 'channels_first' else -1
 
-        inputs = coordinator.resolve(inputs)
-        outputs = [super(Keep, self).call(input) for input in inputs]
+        def output(gpu, input):
+            with tf.device('/device:GPU:%d' % gpu):
+                return super(Keep, self).call(input)
+
+        outputs = [output(gpu, input) for gpu, input in enumerate(coordinator.resolve(inputs))]
         merged = keras.layers.Concatenate(axis=channel_axis)(outputs)
         coordinator.register(merged, outputs)
         return merged
