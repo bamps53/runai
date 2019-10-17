@@ -6,6 +6,8 @@ import runai
 from .keep import Keep
 from .parallelised import Parallelised
 
+class Activation(Keep, keras.layers.Activation): pass
+
 class Dense(Parallelised, keras.layers.Dense):
     def build(self, input_shape):
         assert len(input_shape) == 2 # TODO(levosos): support more than two dimensions
