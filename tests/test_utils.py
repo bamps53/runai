@@ -58,6 +58,23 @@ class TestHook(unittest.TestCase):
         hook.disable()
         assert o.foo() == 42
 
+    def test_recursion(self):
+        class Module:
+            @staticmethod
+            def foo(x):
+                return x + 10
+        
+        def hook(x):
+            return Module.foo(x) + 1
+        
+        for recursion in [True, False]:
+            with runai.utils.Hook(Module, 'foo', hook, recursion=recursion):
+                if recursion:
+                    with self.assertRaises(RecursionError):
+                        Module.foo(0)
+                else:
+                    assert Module.foo(0) == 11
+
 class TestRandom(unittest.TestCase):
     def test_string(self):
         for _ in range(100):
