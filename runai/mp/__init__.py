@@ -25,16 +25,34 @@ def init(splits, method):
 
     from .keras import layers
 
-    keras.layers.Activation         = layers.Activation
-    keras.layers.Add                = layers.Add
-    keras.layers.Average            = layers.Average
-    keras.layers.BatchNormalization = layers.BatchNormalization
-    keras.layers.Conv2D             = layers.Conv2D
-    keras.layers.Dense              = layers.Dense
-    keras.layers.Dropout            = layers.Dropout
-    keras.layers.Maximum            = layers.Maximum
-    keras.layers.MaxPooling2D       = layers.MaxPooling2D
-    keras.layers.Minimum            = layers.Minimum
-    keras.layers.Multiply           = layers.Multiply
-    keras.layers.Subtract           = layers.Subtract
-    keras.layers.ZeroPadding2D      = layers.ZeroPadding2D
+    def _layer(layer):
+        setattr(
+            keras.layers,
+            layer,
+            getattr(layers, layer)
+        )
+    
+    [_layer(layer) for layer in [
+        'Activation',
+        'Add',
+        'Average',
+        'BatchNormalization',
+        'Conv2D',
+        'Dense',
+        'Dropout',
+        'Maximum',
+        'MaxPooling2D',
+        'Minimum',
+        'Multiply',
+        'Subtract',
+        'ZeroPadding2D',
+        ]]
+
+    def _method(method):
+        setattr(
+            keras.layers,
+            method,
+            lambda inputs, *args, **kwargs: getattr(layers, method.capitalize())(*args, **kwargs)(inputs)
+        )
+
+    [_method(method) for method in ['add', 'subtract', 'multiply', 'average', 'maximum', 'minimum']]

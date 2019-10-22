@@ -63,10 +63,12 @@ class Keep(keras.layers.Layer):
                 return super(Keep, self).call(inputs)
 
         if isinstance(inputs, (tuple, list)):
-            outputs = [output(gpu, inputs) for gpu, inputs in enumerate(zip([coordinator.resolve(input) for input in inputs]))]
+            inputs = [coordinator.resolve(input) for input in inputs]
+            inputs = [[input[i] for input in inputs] for i in range(len(inputs[0]))]
         else:
-            outputs = [output(gpu, input) for gpu, input in enumerate(coordinator.resolve(inputs))]
-
+            inputs = coordinator.resolve(inputs)
+        
+        outputs = [output(gpu, input) for gpu, input in enumerate(inputs)]
         merged = keras.layers.Concatenate(axis=channel_axis)(outputs)
         coordinator.register(merged, outputs)
         return merged
