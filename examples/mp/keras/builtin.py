@@ -7,7 +7,8 @@ from scipy.misc import imresize
 
 import runai.mp
 
-runai.mp.init(splits=2, method=runai.mp.Method.Cout)
+#runai.mp.init(splits=2, method=runai.mp.Method.Cout)
+runai.mp.init(splits=2, method=runai.mp.Method.Cin)
 
 if len(sys.argv) == 1:
     MODEL = 'vgg16'
@@ -78,12 +79,12 @@ models = {
 }
 
 (x_train, y_train), (x_test, y_test) = cifar10_data(
-    train_samples=100,
-    test_samples=100,
+    train_samples=-1,
+    test_samples=-1,
     num_classes=10,
-    trg_image_dim_size=300,
+    trg_image_dim_size=32,
     data_format='channels_last',
-    num_channels=3 if runai.mp.method == runai.mp.Method.Cout else 4
+    num_channels=3  if runai.mp.method == runai.mp.Method.Cout else 4
 )
 
 module = getattr(keras.applications, MODEL)
@@ -109,11 +110,11 @@ train_datagen.fit(x_train)
 val_datagen = ImageDataGenerator()
 val_datagen.fit(x_test)
 
-BATCH_SIZE = 2
+BATCH_SIZE = 64
 
 model.fit_generator(train_datagen.flow(x_train, y_train, batch_size=BATCH_SIZE),
             steps_per_epoch=len(x_train)/BATCH_SIZE,
-            epochs=2,
+            epochs=10,
             validation_steps=len(x_test)/BATCH_SIZE,
             validation_data=val_datagen.flow(x_test, y_test),
             shuffle=False)
