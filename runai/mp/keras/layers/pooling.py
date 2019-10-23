@@ -1,5 +1,10 @@
-import keras.layers
+import sys
 
 from .keep import Keep
 
-class MaxPooling2D(Keep, keras.layers.MaxPooling2D): pass
+[setattr(sys.modules[__name__], layer, Keep.create(layer)) for layer in [
+    'MaxPooling2D',
+    'AveragePooling2D',
+    'GlobalAveragePooling2D',
+    'GlobalMaxPooling2D',
+]]
