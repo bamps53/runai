@@ -74,7 +74,7 @@ class Parallelised(keras.layers.Layer):
                 runai.log.info('Using parallelised input for \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
                 return coordinator.resolve(input)
             else:
-                runai.log.info('Splitting non-parallelised input for \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
+                runai.log.warning('Splitting non-parallelised input (%s) for \'%s\' layer "%s"', input.name, self.__class__.__name__, getattr(self, 'name', 'N/A'))
                 return tf.split(input, runai.mp.splits, axis=channel_axis)
         elif runai.mp.method == runai.mp.Method.Cout:
             return [input] * runai.mp.splits
