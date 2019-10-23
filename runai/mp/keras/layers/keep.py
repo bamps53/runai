@@ -72,3 +72,9 @@ class Keep(keras.layers.Layer):
         merged = keras.layers.Concatenate(axis=channel_axis)(outputs)
         coordinator.register(merged, outputs)
         return merged
+
+    @staticmethod
+    def create(name):
+        """ Create an MP-supported Keras layer with 'keep' logic
+        """
+        return type(name, (Keep, getattr(keras.layers, name)), {})

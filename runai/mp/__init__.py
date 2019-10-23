@@ -25,34 +25,24 @@ def init(splits, method):
 
     from .keras import layers
 
-    def _layer(layer):
-        setattr(
-            keras.layers,
-            layer,
-            getattr(layers, layer)
-        )
-    
-    [_layer(layer) for layer in [
+    [setattr(keras.layers, attribute, getattr(layers, attribute)) for attribute in [
         'Activation',
+        'add',
         'Add',
+        'average',
         'Average',
         'BatchNormalization',
         'Conv2D',
         'Dense',
         'Dropout',
+        'maximum',
         'Maximum',
         'MaxPooling2D',
+        'minimum',
         'Minimum',
+        'multiply',
         'Multiply',
+        'subtract',
         'Subtract',
         'ZeroPadding2D',
         ]]
-
-    def _method(method):
-        setattr(
-            keras.layers,
-            method,
-            lambda inputs, *args, **kwargs: getattr(layers, method.capitalize())(*args, **kwargs)(inputs)
-        )
-
-    [_method(method) for method in ['add', 'subtract', 'multiply', 'average', 'maximum', 'minimum']]

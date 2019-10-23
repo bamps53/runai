@@ -6,7 +6,7 @@ import runai
 from .keep import Keep
 from .parallelised import Parallelised
 
-class Activation(Keep, keras.layers.Activation): pass
+Activation = Keep.create('Activation')
 
 class Dense(Parallelised, keras.layers.Dense):
     def build(self, input_shape):
@@ -60,4 +60,4 @@ class Dense(Parallelised, keras.layers.Dense):
         
         return self.merge(outputs, channel_axis=-1)
 
-class Dropout(Keep, keras.layers.Dropout): pass
+Dropout = Keep.create('Dropout')

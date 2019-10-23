@@ -1,15 +1,35 @@
-import keras.layers
+import sys
 
 from .keep import Keep
 
-class Add(Keep, keras.layers.Add): pass
+def _layer(layer):
+    setattr(
+        sys.modules[__name__],
+        layer,
+        Keep.create(layer)
+    )
 
-class Subtract(Keep, keras.layers.Subtract): pass
+[_layer(layer) for layer in [
+    'Add',
+    'Subtract',
+    'Multiply',
+    'Average',
+    'Maximum',
+    'Minimum',
+]]
 
-class Multiply(Keep, keras.layers.Multiply): pass
+def _method(method):
+    setattr(
+        sys.modules[__name__],
+        method,
+        lambda inputs, *args, **kwargs: getattr(sys.modules[__name__], method.capitalize())(*args, **kwargs)(inputs) # mimicking the method implementations at keras/layers/merge.py
+    )
 
-class Average(Keep, keras.layers.Average): pass
-
-class Maximum(Keep, keras.layers.Maximum): pass
-
-class Minimum(Keep, keras.layers.Minimum): pass
+[_method(method) for method in [
+    'add',
+    'subtract',
+    'multiply',
+    'average',
+    'maximum',
+    'minimum'
+]]

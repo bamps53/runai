@@ -69,4 +69,4 @@ class Conv2D(Parallelised, keras.layers.Conv2D):
         
         return self.merge(outputs, channel_axis=self.channel_axis)
 
-class ZeroPadding2D(Keep, keras.layers.ZeroPadding2D): pass
+ZeroPadding2D = Keep.create('ZeroPadding2D')
