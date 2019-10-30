@@ -61,3 +61,5 @@ class Dense(Parallelised, keras.layers.Dense):
         return self.merge(outputs, channel_axis=-1)
 
 Dropout = Keep.create('Dropout')
+
+Flatten = Keep.create('Flatten')
