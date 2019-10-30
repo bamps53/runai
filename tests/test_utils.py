@@ -141,5 +141,9 @@ class TestAttribute(unittest.TestCase):
         assert not hasattr(obj, old)
         assert getattr(obj, new) == value
 
+class TestGPUs(unittest.TestCase):
+    def test_count_is_0(self):
+        assert runai.utils.gpus.count() == 0
+
 if __name__ == '__main__':
     unittest.main()
