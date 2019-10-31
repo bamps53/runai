@@ -7,11 +7,13 @@ class session_run(Profiler):
         super(session_run, self).__init__(tensorflow.Session, 'run', steps, dst)
     
     def __hook__(self, _self, fetches, feed_dict=None, options=None, run_metadata=None):
-        assert options is None # TODO(levosos): handle this
-        assert run_metadata is None # TODO(levosos): handle this
+        if options is None:
+            options = tensorflow.RunOptions()
+    
+        options.trace_level = tensorflow.RunOptions.FULL_TRACE
 
-        options = tensorflow.RunOptions(trace_level=tensorflow.RunOptions.FULL_TRACE)
-        run_metadata = tensorflow.RunMetadata()
+        if run_metadata is None:
+            run_metadata = tensorflow.RunMetadata()
 
         result = self.__original__(_self, fetches, feed_dict, options, run_metadata)
 

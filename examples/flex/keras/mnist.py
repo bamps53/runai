@@ -1,3 +1,5 @@
+# horovodrun -np `nvidia-smi --list-gpus | wc -l` -H localhost:`nvidia-smi --list-gpus | wc -l` python examples/flex/keras/mnist.py
+
 from __future__ import print_function
 
 import keras
@@ -6,7 +8,7 @@ from keras.layers import Dense, Dropout
 
 import runai.flex
 
-runai.flex.init(global_batch_size=128, max_gpu_batch_size=16, gpus=1)
+runai.flex.init(global_batch_size=128, max_gpu_batch_size=16)
 
 NUM_CLASSES = 10
 

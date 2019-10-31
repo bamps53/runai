@@ -36,6 +36,7 @@ def init(splits, method):
         'Conv2D',
         'Dense',
         'Dropout',
+        'Flatten',
         'GlobalAveragePooling2D',
         'GlobalMaxPooling2D',
         'maximum',

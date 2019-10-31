@@ -1,3 +1,5 @@
+# horovodrun -np `nvidia-smi --list-gpus | wc -l` -H localhost:`nvidia-smi --list-gpus | wc -l` python examples/flex/keras/hvd_cifar10.py
+
 import time
 
 import keras
@@ -13,7 +15,7 @@ import runai.flex
 EPOCHS = 1
 DATA_AUGMENTATION = True
 
-runai.flex.init(global_batch_size=64, max_gpu_batch_size=16, gpus=2)
+runai.flex.init(global_batch_size=64, max_gpu_batch_size=16)
 
 class StepTimeReporter(keras.callbacks.Callback):
     def on_batch_begin(self, batch, logs={}):
