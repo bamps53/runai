@@ -1,21 +1,64 @@
-
 import numpy as np
 import os
 import tempfile
+
+
+
+
+
+if True:
+    import runai
+    runai.mp.init(splits=2, method=runai.mp.Method.Cout)
+
+
+import runai.profiler
+runai.profiler.profile(20, './')
 
 import keras
 from keras import backend as K
 from keras import layers
 from keras.datasets import mnist
 
+import time
+
 import tensorflow as tf
-from scipy.misc import imresize
+#from scipy.misc import imresize
 
 if K.backend() != 'tensorflow':
     raise RuntimeError('This example can only run with the TensorFlow backend,'
                        ' because it requires the Datset API, which is not'
                        ' supported on other platforms.')
 
+
+
+class StepTimeReporter1(keras.callbacks.Callback):
+    def __init__(self):
+        self.start = 0
+
+    def on_batch_begin(self, batch, logs={}):
+        self.start = time.time()
+
+    def on_batch_end(self, batch, logs={}):
+        print(' >> Step %d took %g sec' % (batch, time.time() - self.start))
+
+class StepTimeReporter(keras.callbacks.Callback):
+    def __init__(self):
+        self.fname='mnist.txt'
+        if (os.path.isfile(self.fname)):
+            os.remove(self.fname)
+        self.start = 0
+        self.saved=False
+
+    def on_batch_begin(self, batch, logs={}):
+        #if(os.path.isfile(self.fname))
+        if batch == 20 and not self.saved :
+            with open(self.fname, 'w') as f:
+                f.write(str(tf.get_default_graph().as_graph_def()))
+                self.saved=True
+        self.start = time.time()
+
+    def on_batch_end(self, batch, logs={}):
+        print(' >> Step %d took %g sec' % (batch, time.time() - self.start))
 
 def cnn_layers(inputs):
     x = layers.Conv2D(32, (3, 3),
@@ -32,13 +75,6 @@ def cnn_layers(inputs):
     return predictions
 
 
-def modify(x,y):
-    #print (x.shape,x.__class__.__name__)
-    #print (y.shape)
-    #return np.resize(x,(200,200,1)),y
-    #print (np.squeeze(x).shape)
-    #return imresize(np.squeeze(x), [200,200]),y
-    return tf.squeeze(tf.image.resize_bilinear(tf.expand_dims(x,0), [28,28]),0),y
 
 
 
@@ -47,6 +83,19 @@ buffer_size = 1000
 steps_per_epoch = int(np.ceil(60000 / float(batch_size)))  # = 469
 epochs = 5
 num_classes = 10
+lr = 2e-3 * batch_size / 128.
+img_size = 400
+
+def modify(x,y):
+    #print (x.shape,x.__class__.__name__)
+    #print (y.shape)
+    #return np.resize(x,(200,200,1)),y
+    #print (np.squeeze(x).shape)
+    #return imresize(np.squeeze(x), [200,200]),y
+    return tf.squeeze(tf.image.resize_bilinear(tf.expand_dims(x,0), [img_size,img_size]),0),y
+
+
+
 
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 x_train = x_train.astype(np.float32) / 255
@@ -83,14 +132,16 @@ model_input = layers.Input(tensor=inputs)
 model_output = cnn_layers(model_input)
 train_model = keras.models.Model(inputs=model_input, outputs=model_output)
 
-train_model.compile(optimizer=keras.optimizers.RMSprop(lr=2e-3, decay=1e-5),
+train_model.compile(optimizer=keras.optimizers.RMSprop(lr=lr, decay=1e-5),
                     loss='categorical_crossentropy',
                     metrics=['accuracy'],
                     target_tensors=[targets])
 train_model.summary()
 
+time_reporter = StepTimeReporter()
+callbacks = [time_reporter]
 train_model.fit(epochs=epochs,
-                steps_per_epoch=steps_per_epoch)
+                steps_per_epoch=steps_per_epoch,callbacks=callbacks)
 
 # Save the model weights.
 weight_path = os.path.join(tempfile.gettempdir(), 'saved_wt.h5')
@@ -108,6 +159,10 @@ test_out = cnn_layers(x_test_inp)
 test_model = keras.models.Model(inputs=x_test_inp, outputs=test_out)
 
 test_model.load_weights(weight_path)
+
+
+
+
 test_model.compile(optimizer='rmsprop',
                    loss='sparse_categorical_crossentropy',
                    metrics=['accuracy'])
