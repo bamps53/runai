@@ -78,12 +78,13 @@ class Parallelised(keras.layers.Layer):
                 return tf.split(input, runai.mp.splits, axis=channel_axis)
         elif runai.mp.method == runai.mp.Method.Cout:
             if coordinator.registered(input):
-                runai.log.info('Creating parallelised input for \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
-                parts = coordinator.resolve(input)
-                def create_allgather(parts, gpu):
+                runai.log.info('Gathering parallelised input for \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
+
+                def gather(gpu):
                     with tf.device('/device:GPU:%d' % gpu):
-                        return keras.layers.Concatenate(axis=channel_axis)(parts)
-                return [create_allgather(parts, i) for i in range(runai.mp.splits)]
+                        return keras.layers.Concatenate(axis=channel_axis)(coordinator.resolve(input))
+                
+                return [gather(gpu) for gpu in range(runai.mp.splits)]
             else:
                 return [input] * runai.mp.splits
         else:
@@ -119,7 +120,14 @@ class Parallelised(keras.layers.Layer):
         """ Reduce-split some tensors on a specified axis
         """
 
-        # TODO(levosos): implement better reduce-split
+        def split(gpu):
+            with tf.device('/device:GPU:%d' % gpu):
+                return tf.split(outputs[gpu], runai.mp.splits, axis=channel_axis)
 
-        added = keras.layers.Add()(outputs)
-        return tf.split(added, runai.mp.splits, axis=channel_axis)
+        splits = [split(gpu) for gpu in range(runai.mp.splits)]
+        
+        def output(gpu):
+            with tf.device('/device:GPU:%d' % gpu):
+                return keras.layers.Add()([split[gpu] for split in splits])
+
+        return [output(gpu) for gpu in range(runai.mp.splits)]
