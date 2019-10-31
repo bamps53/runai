@@ -14,6 +14,13 @@ class Conv2D(Parallelised, keras.layers.Conv2D):
             self.channel_axis = -1
 
         total_cin = input_shape[self.channel_axis]
+        
+        if total_cin < runai.mp.splits:
+            runai.log.warning('Not parallelising \'%s\' layer "%s" with input shape %s', self.__class__.__name__, getattr(self, 'name', 'N/A'), input_shape)
+            self._parallelised = False
+            return super(Conv2D, self).build(input_shape)
+
+        self._parallelised = True
 
         cin, cout, c = self.calculate_cs(
             cin=total_cin,
@@ -38,6 +45,9 @@ class Conv2D(Parallelised, keras.layers.Conv2D):
         self.built = True
 
     def call(self, inputs):
+        if not self._parallelised:
+            return super(Conv2D, self).call(inputs)
+        
         inputs = self.inputs(inputs, channel_axis=self.channel_axis)
 
         assert self.rank == 2 # TODO(levosos): support other convolutions
