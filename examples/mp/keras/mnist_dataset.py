@@ -11,8 +11,8 @@ if True:
     runai.mp.init(splits=2, method=runai.mp.Method.Cout)
 
 
-import runai.profiler
-runai.profiler.profile(20, './')
+# import runai.profiler
+# runai.profiler.profile(20, './')
 
 import keras
 from keras import backend as K
