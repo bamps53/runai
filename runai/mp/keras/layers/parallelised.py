@@ -77,7 +77,15 @@ class Parallelised(keras.layers.Layer):
                 runai.log.warning('Splitting non-parallelised input (%s) for \'%s\' layer "%s"', input.name, self.__class__.__name__, getattr(self, 'name', 'N/A'))
                 return tf.split(input, runai.mp.splits, axis=channel_axis)
         elif runai.mp.method == runai.mp.Method.Cout:
-            return [input] * runai.mp.splits
+            if coordinator.registered(input):
+                runai.log.info('Creating parallelised input for \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
+                parts = coordinator.resolve(input)
+                def create_allgather(parts, gpu):
+                    with tf.device('/device:GPU:%d' % gpu):
+                        return keras.layers.Concatenate(axis=channel_axis)(parts)
+                return [create_allgather(parts, i) for i in range(runai.mp.splits)]
+            else:
+                return [input] * runai.mp.splits
         else:
             raise ValueError('Unrecognized MP method: %s' % runai.mp.method)
 
