@@ -4,12 +4,20 @@ import tempfile
 
 
 
+import argparse
+
+parser = argparse.ArgumentParser(description='Run model parallelism on MNIST.')
+parser.add_argument('--splits', type=int, default=1)
+parser.add_argument('--batch_size', type=int, default=64)
+parser.add_argument('--img_size', type=int, default=400)
 
 
-if True:
+args = parser.parse_args()
+print(args)
+
+if args.splits > 1:
     import runai
-    runai.mp.init(splits=2, method=runai.mp.Method.Cout)
-
+    runai.mp.init(splits=args.splits, method=runai.mp.Method.Cout)
 
 # import runai.profiler
 # runai.profiler.profile(20, './')
@@ -75,16 +83,14 @@ def cnn_layers(inputs):
     return predictions
 
 
-
-
-
-batch_size = 128
+batch_size = args.batch_size
 buffer_size = 1000
 steps_per_epoch = int(np.ceil(60000 / float(batch_size)))  # = 469
 epochs = 5
 num_classes = 10
 lr = 2e-3 * batch_size / 128.
-img_size = 400
+img_size = args.img_size
+
 
 def modify(x,y):
     #print (x.shape,x.__class__.__name__)
@@ -105,7 +111,7 @@ y_train = tf.one_hot(y_train, num_classes)
 # Create the dataset and its associated one-shot iterator.
 dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
 dataset = dataset.repeat()
-dataset = dataset.shuffle(buffer_size)
+#dataset = dataset.shuffle(buffer_size)
 # def tf_random_rotate_image(image, label):
 #
 #   im_shape = image.shape
