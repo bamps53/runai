@@ -77,6 +77,16 @@ class Optimizer(keras.optimizers.Optimizer):
         config['steps'] = self.steps
         return config
 
+    def __getattribute__(self, name):
+        # users can query the optimizer to retrieve its attributes, such as 'lr'.
+        # we rely on the fact that there are no mutual attribute names between our
+        # implementation and the original optimizer implementation, and we get the
+        # original optimizer's attribute in case our object does not have one.
+        try:
+            return object.__getattribute__(self, name)
+        except AttributeError:
+            return self.optimizer.__getattribute__(name)
+
 def _optimizer(optimizer):
     setattr(
         sys.modules[__name__],
