@@ -17,7 +17,7 @@ def init(global_batch_size, max_gpu_batch_size, gpus=runai.utils.gpus.count()):
     setattr(module, 'master', True)
 
     # TODO(levosos): support uneven dividing
-    steps = global_batch_size // (max_gpu_batch_size * gpus)
+    steps = max(1, global_batch_size // (max_gpu_batch_size * gpus)) # must be at least 1
     batch_size = global_batch_size // (steps * gpus)
     
     setattr(module, 'steps', steps)
