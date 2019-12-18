@@ -1,4 +1,4 @@
-# horovodrun -np `nvidia-smi --list-gpus | wc -l` -H localhost:`nvidia-smi --list-gpus | wc -l` python examples/flex/keras/mnist.py
+# horovodrun -np `nvidia-smi --list-gpus | wc -l` -H localhost:`nvidia-smi --list-gpus | wc -l` python examples/elastic/keras/mnist.py
 
 from __future__ import print_function
 
@@ -6,9 +6,9 @@ import keras
 from keras.models import Sequential
 from keras.layers import Dense, Dropout
 
-import runai.flex
+import runai.elastic
 
-runai.flex.init(global_batch_size=128, max_gpu_batch_size=16)
+runai.elastic.init(global_batch_size=128, max_gpu_batch_size=16)
 
 NUM_CLASSES = 10
 
@@ -32,7 +32,7 @@ model.add(Dropout(0.2))
 model.add(Dense(NUM_CLASSES, activation='softmax'))
 
 # wrap 'model' with Run:AI elasticity
-model = runai.flex.keras.models.Model(model)
+model = runai.elastic.keras.models.Model(model)
 
 model.compile(
     loss='categorical_crossentropy',
@@ -41,12 +41,12 @@ model.compile(
 )
 
 model.fit(x_train, y_train,
-                    batch_size=runai.flex.batch_size, # use the calculated configuration (batch size in this case)
+                    batch_size=runai.elastic.batch_size, # use the calculated configuration (batch size in this case)
                     epochs=1,
-                    verbose=runai.flex.master,
+                    verbose=runai.elastic.master,
                     validation_data=(x_test, y_test))
 
-score = model.evaluate(x_test, y_test, verbose=runai.flex.master)
+score = model.evaluate(x_test, y_test, verbose=runai.elastic.master)
 
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
