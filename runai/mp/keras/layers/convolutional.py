@@ -1,7 +1,8 @@
 import keras.backend as K
 import keras.layers
 
-import runai
+import runai.mp
+import runai.utils
 
 from .keep import Keep
 from .parallelised import Parallelised
@@ -16,7 +17,7 @@ class Conv2D(Parallelised, keras.layers.Conv2D):
         total_cin = input_shape[self.channel_axis]
         
         if total_cin < runai.mp.splits:
-            runai.log.warning('Not parallelising \'%s\' layer "%s" with input shape %s', self.__class__.__name__, getattr(self, 'name', 'N/A'), input_shape)
+            runai.utils.log.warning('Not parallelising \'%s\' layer "%s" with input shape %s', self.__class__.__name__, getattr(self, 'name', 'N/A'), input_shape)
             self._parallelised = False
             return super(Conv2D, self).build(input_shape)
 

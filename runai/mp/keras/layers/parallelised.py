@@ -1,7 +1,8 @@
 import keras.layers
 import tensorflow as tf
 
-import runai
+import runai.mp
+import runai.utils
 
 from . import coordinator
 
@@ -20,7 +21,7 @@ class Parallelised(keras.layers.Layer):
             A list of tensors with the tensor names of the weights
         """
 
-        runai.log.debug('Declaring %d weights (%s) of shape %s for \'%s\' layer "%s"' % (runai.mp.splits, name, shape, self.__class__.__name__, getattr(self, 'name', 'N/A')))
+        runai.utils.log.debug('Declaring %d weights (%s) of shape %s for \'%s\' layer "%s"' % (runai.mp.splits, name, shape, self.__class__.__name__, getattr(self, 'name', 'N/A')))
 
         def add_weight(gpu):
             with tf.device('/device:GPU:%d' % gpu):
@@ -71,14 +72,14 @@ class Parallelised(keras.layers.Layer):
 
         if runai.mp.method == runai.mp.Method.Cin:
             if coordinator.registered(input):
-                runai.log.info('Using parallelised input for \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
+                runai.utils.log.info('Using parallelised input for \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
                 return coordinator.resolve(input)
             else:
-                runai.log.warning('Splitting non-parallelised input (%s) for \'%s\' layer "%s"', input.name, self.__class__.__name__, getattr(self, 'name', 'N/A'))
+                runai.utils.log.warning('Splitting non-parallelised input (%s) for \'%s\' layer "%s"', input.name, self.__class__.__name__, getattr(self, 'name', 'N/A'))
                 return tf.split(input, runai.mp.splits, axis=channel_axis)
         elif runai.mp.method == runai.mp.Method.Cout:
             if coordinator.registered(input):
-                runai.log.info('Gathering parallelised input for \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
+                runai.utils.log.info('Gathering parallelised input for \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
 
                 def gather(gpu):
                     with tf.device('/device:GPU:%d' % gpu):

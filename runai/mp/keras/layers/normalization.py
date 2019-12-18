@@ -1,7 +1,8 @@
 import keras.layers
 import tensorflow as tf
 
-import runai
+import runai.mp
+import runai.utils
 
 from . import coordinator
 from .parallelised import Parallelised
@@ -47,7 +48,7 @@ class BatchNormalization(Parallelised, keras.layers.BatchNormalization):
         # weights for the parallelised version
         assert coordinator.registered(inputs)
 
-        runai.log.info('Using parallelised input for \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
+        runai.utils.log.info('Using parallelised input for \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
 
         def output(gpu, input):
             values = [getattr(self, '_' + attribute) for attribute in ATTRIBUTES]

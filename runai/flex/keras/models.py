@@ -1,8 +1,8 @@
 import keras.optimizers
 
-from runai import log
 import runai.flex
 import runai.ga
+import runai.utils
 
 def compile(self, *args, **kwargs):
     if 'optimizer' in kwargs:
@@ -16,10 +16,10 @@ def compile(self, *args, **kwargs):
     if not isinstance(optimizer, keras.optimizers.Optimizer):
         raise ValueError("'optimizer' must be a valid keras.optimizers.Optimizer")
 
-    log.debug('compile() called with optimizer %s', optimizer)
+    runai.utils.log.debug('compile() called with optimizer %s', optimizer)
     
     if runai.flex.gpus > 1:
-        log.debug('Wrapping optimizer with Horovod')
+        runai.utils.log.debug('Wrapping optimizer with Horovod')
         
         import horovod.keras as hvd
         optimizer = hvd.DistributedOptimizer(optimizer)
@@ -32,7 +32,7 @@ def compile(self, *args, **kwargs):
     return self.__runai__['compile'](**kwargs) # ignore 'args' as 'optimizer' is the only possible argument and it is in 'kwargs'
 
 def fit(self, *args, **kwargs):
-    log.debug('fit() called')
+    runai.utils.log.debug('fit() called')
 
     if runai.flex.gpus > 1:
         import horovod.keras as hvd
@@ -46,7 +46,7 @@ def fit(self, *args, **kwargs):
     return self.__runai__['fit'](*args, **kwargs)
 
 def fit_generator(self, *args, **kwargs):
-    log.debug('fit_generator() called')
+    runai.utils.log.debug('fit_generator() called')
 
     if runai.flex.gpus > 1:
         import horovod.keras as hvd

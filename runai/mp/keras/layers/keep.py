@@ -1,7 +1,7 @@
 import keras.layers
 import tensorflow as tf
 
-from runai import log
+import runai.utils
 
 from . import coordinator
 
@@ -51,10 +51,10 @@ class Keep(keras.layers.Layer):
             valid = coordinator.registered(inputs)
 
         if not valid:
-            log.debug('Not parallelising \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
+            runai.utils.log.debug('Not parallelising \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
             return super(Keep, self).call(inputs)
 
-        log.info('Using parallelised input for \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
+        runai.utils.log.info('Using parallelised input for \'%s\' layer "%s"', self.__class__.__name__, getattr(self, 'name', 'N/A'))
 
         channel_axis = 1 if getattr(self, 'data_format', 'channels_last') == 'channels_first' else -1
 

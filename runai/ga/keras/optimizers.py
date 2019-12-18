@@ -3,7 +3,7 @@ import sys
 import keras.optimizers
 import keras.backend as K
 
-from runai import log
+import runai.utils
 
 from . import hooks
 
@@ -13,7 +13,7 @@ class Optimizer(keras.optimizers.Optimizer):
         self.optimizer = optimizer
         self.steps = steps
 
-        log.debug('Wrapping \'%s\' Keras optimizer with GA of %d steps', optimizer.__class__.__name__, steps)
+        runai.utils.log.debug('Wrapping \'%s\' Keras optimizer with GA of %d steps', optimizer.__class__.__name__, steps)
 
     def get_updates(self, loss, params):
         grads = self.get_gradients(loss, params)

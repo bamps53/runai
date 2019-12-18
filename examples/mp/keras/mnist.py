@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import keras
-import runai
+import runai.mp
 
 runai.mp.init(splits=2, method=runai.mp.Method.Cin)
 

@@ -8,13 +8,13 @@ class Method(enum.Enum):
 
 from . import keras
 
-from runai.utils import log
+import runai.utils
 
 def init(splits, method):
     if method != Method.Cin and method != Method.Cout:
         raise ValueError('Unrecognized method: %s' % method)
 
-    log.info('Initializing MP (%s) with %s splits', method.name, splits)
+    runai.utils.log.info('Initializing MP (%s) with %s splits', method.name, splits)
     
     import sys
 

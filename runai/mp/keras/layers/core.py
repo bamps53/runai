@@ -1,7 +1,7 @@
 import keras.backend as K
 import keras.layers
 
-import runai
+import runai.mp
 
 from .keep import Keep
 from .parallelised import Parallelised
