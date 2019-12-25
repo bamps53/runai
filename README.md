@@ -13,12 +13,13 @@ CircleCI is used for CI system:
 
 This library consists of a few pretty much independent submodules:
 
-| Module | Name | Info | TF | Keras |
-|--------|------|------|----|-------|
-| Elastic | `elastic` | Make Keras models elastic | :x: | :white_check_mark: |
-| Gradient Accumulation | `ga` | [Gradient accumulation for Keras optimizers](runai/ga/README.md) | :x: | :white_check_mark: |
-| Model Parallelism | `mp` | Model-parallelism support for Keras builtin layers | :x: | :white_check_mark: |
-| Auto Profiler | `profiler` | Export timeline of TF/Keras models easily | :white_check_mark: | :white_check_mark: |
+| Module | Name | Info |
+|--------|------|------|
+| Elastic | `elastic` | Make Keras models elastic |
+| Gradient Accumulation | `ga` | [Gradient accumulation for Keras optimizers](runai/ga/README.md) |
+| Model Parallelism | `mp` | Model-parallelism support for Keras builtin layers |
+| Auto Profiler | `profiler` | Export timeline of TF/Keras models easily |
+| Reporter | `reporter` | [An interface to send metrics and parameters to Promethues Push Gateway](runai/reporter/README.md) |
 
 ## Getting Started
 
