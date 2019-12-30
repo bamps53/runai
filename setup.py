@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="runai",
-    version="0.1.1",
+    version="0.1.2",
     author="Run:AI",
     author_email="pypi@run.ai",
     description="Run:AI Python library",
