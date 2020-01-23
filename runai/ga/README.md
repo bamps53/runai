@@ -2,6 +2,14 @@
 
 A generic gradient accumulation wrapper for Keras optimizers
 
+## References
+
+We published a series of articles on Medium related to gradient accumulation. This series of articles explains potential issues when using large batch sizes, what is gradient accumulation, how it works, and how we implemented it:
+
+* [The problem of batch sizing and limited GPU memory](https://towardsdatascience.com/how-to-break-gpu-memory-boundaries-even-with-large-batch-sizes-7a9c27a400ce?source=friends_link&sk=74a7a2793da909c1194c0add818c7fd3)
+* [What is Gradient Accumulation and how does it help?](https://towardsdatascience.com/what-is-gradient-accumulation-in-deep-learning-ec034122cfa?source=friends_link&sk=28226e1d0ffa7e450d7dffa8d5b9cff6)
+* [How-to guide to using the gradient accumulation mechanism and how we implemented it](https://towardsdatascience.com/how-to-easily-use-gradient-accumulation-in-keras-models-fa02c0342b60?source=friends_link&sk=ff9137c1c7fa5bbfc4c4e09bacc0273b)
+
 ## Getting Started
 
 Follow the next instructions to use gradient accumulation in your own Keras models, or with one of our examples of basic Keras models.
