@@ -1,13 +1,13 @@
 import sys
 
-import keras.optimizers
-import keras.backend as K
+import tensorflow.keras.optimizers
+import tensorflow.keras.backend as K
 
 import runai.utils
 
 from . import hooks
 
-class Optimizer(keras.optimizers.Optimizer):
+class Optimizer(tensorflow.keras.optimizers.Optimizer):
     def __init__(self, optimizer, steps):
         super(Optimizer, self).__init__()
         self.optimizer = optimizer
@@ -93,7 +93,7 @@ def _optimizer(optimizer):
         optimizer,
         type(
             optimizer, (Optimizer,),
-            { '__init__': lambda self, steps, **kwargs: Optimizer.__init__(self, optimizer=getattr(keras.optimizers, optimizer)(**kwargs), steps=steps) }
+            { '__init__': lambda self, steps, **kwargs: Optimizer.__init__(self, optimizer=getattr(tensorflow.keras.optimizers, optimizer)(**kwargs), steps=steps) }
         )
     )
 
